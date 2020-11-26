@@ -34,6 +34,10 @@ if gpus:
     i = 0
     for gpu in gpus:
       tf.config.experimental.set_memory_growth(gpu, True)
+      tf.config.experimental.set_virtual_device_configuration(
+                  gpu,
+                  [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=10240)]
+      )
       print(f"\tEnabling memory growth for gpu: {i}")
       i -= -1
     logical_gpus = tf.config.experimental.list_logical_devices('GPU')
