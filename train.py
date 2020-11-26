@@ -111,6 +111,9 @@ def main():
     parser.add_argument('--learning-rate', type=float,
                     help='Learning rate to use with Adam optimizer, default is \
                         1e-3', default=1e-3)
+    parser.add_argument('--show-output-images', action='store_true',
+                    help='Whether tensorboard should show output images after '\
+                        'each epoch', default=False)
 
     args = parser.parse_args()
     for arg in vars(args):
@@ -181,19 +184,23 @@ def main():
     model.summary()
 
     print(f"Tensorboard outputs to: {args.tensorboard_output}")
+    callbacks = []
     tensorboard_callback  = keras.callbacks.TensorBoard(log_dir=args.tensorboard_output,
                                                           histogram_freq=1)
+    callbacks.append(tensorboard_callback)
     file_writer_cm = tf.summary.create_file_writer(args.tensorboard_output
                                                    + '/output_samples')
-    def show_output(epoch, logs):
-        x_batch, y_batch = next(iter(val_ds))
-        _input = np.array([x_batch[0]])
-        print(f"Input shape: {_input.shape}")
-        img = model.predict(_input)
-        with file_writer_cm.as_default():
-                tf.summary.image(f"output_{epoch}", img, step=epoch)
+    if args.show_output_images:
+        def show_output(epoch, logs):
+            x_batch, y_batch = next(iter(val_ds))
+            _input = np.array([x_batch[0]])
+            print(f"Input shape: {_input.shape}")
+            img = model.predict(_input)
+            with file_writer_cm.as_default():
+                    tf.summary.image(f"output_{epoch}", img, step=epoch)
 
-    show_output_callback = keras.callbacks.LambdaCallback(on_epoch_end=show_output)
+        show_output_callback = keras.callbacks.LambdaCallback(on_epoch_end=show_output)
+        callbacks.append(show_output_callback)
 
     print(f"Chekpoints outputs to: {args.checkpoints_output}")
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
@@ -202,10 +209,10 @@ def main():
         monitor='val_loss',
         mode='min',
         save_best_only=True)
+    callbacks.append(model_checkpoint_callback)
 
     model.fit(train_ds, validation_data=val_ds, epochs=args.epochs,
-              callbacks=[model_checkpoint_callback, tensorboard_callback,
-                         show_output_callback])
+              callbacks=callbacks)
 
 if __name__ == "__main__":
     main()
