@@ -9,13 +9,15 @@ import numpy as np
 from matplotlib import pyplot as plt
 from autoencoder import Autoencoder_x2_s
 from autoencoder import Autoencoder_x2
+from autoencoder import Autoencoder_x2_ss
 import argparse
 import datetime
 import keras
 
 models = {
     'Autoencoder_x2_s': Autoencoder_x2_s,
-    'Autoencoder_x2': Autoencoder_x2
+    'Autoencoder_x2': Autoencoder_x2,
+    'Autoencoder_x2_ss': Autoencoder_x2_ss,
 }
 
 model_names = ",".join(list(models.keys()))

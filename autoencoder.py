@@ -66,7 +66,30 @@ def Autoencoder_x2_s():
     decoder_output = UpSampling2D((2, 2))(decoder_output)
     return Model(inputs=[encoder_input,], outputs=decoder_output)
 
+def Autoencoder_x2_ss():
+    input_shape=(380, 380, 3)
+    #Encoder
+    encoder_input = Input(shape=input_shape)
+    encoder_output = Conv2D(32, (3,3), activation='relu', padding='same',strides=1)(encoder_input)
+    encoder_output = MaxPooling2D((2, 2), padding='same')(encoder_output)
+    encoder_output = Conv2D(32, (4,4), activation='relu', padding='same')(encoder_output)
+    encoder_output = MaxPooling2D((2, 2), padding='same')(encoder_output)
+    encoder_output = Conv2D(64, (4,4), activation='relu', padding='same')(encoder_output)
+    encoder_output = MaxPooling2D((2, 2), padding='same')(encoder_output)
+    encoder_output = Conv2D(64, (4,4), activation='relu', padding='same')(encoder_output)
+
+    #Decoder
+    decoder_output = Conv2D(64, (3,3), activation='relu',
+                            padding='same')(encoder_output)
+    decoder_output = UpSampling2D((2, 2))(decoder_output)
+    decoder_output = Conv2D(32, (2, 2), activation='relu', padding='valid')(decoder_output)
+    decoder_output = UpSampling2D((2, 2))(decoder_output)
+    decoder_output = Conv2D(16, (4,4), activation='relu', padding='same')(decoder_output)
+    decoder_output = Conv2D(3, (3, 3), activation='tanh', padding='same')(decoder_output)
+    decoder_output = UpSampling2D((2, 2))(decoder_output)
+    return Model(inputs=[encoder_input,], outputs=decoder_output)
+
 if __name__ == "__main__":
-    model = Autoencoder_x2_s()
+    model = Autoencoder_x2_ss()
     model.compile(optimizer='adam', loss='mean_squared_error')
     model.summary()
