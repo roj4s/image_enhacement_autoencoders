@@ -106,6 +106,9 @@ def main():
                         default=f'/tmp/tensorboard_{timestamp}')
     parser.add_argument('--show-dataset', action='store_true',
                     help='Plot dataset samples', default=False)
+    parser.add_argument('--learning-rate', type=float,
+                    help='Learning rate to use with Adam optimizer, default is \
+                        1e-3', default=1e-3)
 
     args = parser.parse_args()
     for arg in vars(args):
@@ -171,7 +174,7 @@ def main():
         plt.show()
 
     model = models[args.model]()
-    model.compile(optimizer='adam', loss='mean_squared_error',
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=args.learning_rate), loss='mean_squared_error',
                   metrics=[psnr, ssim, ssim_multiscale])
     model.summary()
 
