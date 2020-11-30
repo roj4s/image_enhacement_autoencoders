@@ -152,12 +152,12 @@ def main():
                   metrics=[psnr, ssim, ssim_multiscale])
     model.summary()
 
-    print(f"Tensorboard outputs to: {args.tensorboard_output}")
+    print(f"Tensorboard outputs to: {args.logs}")
     callbacks = []
-    tensorboard_callback  = keras.callbacks.TensorBoard(log_dir=args.tensorboard_output,
+    tensorboard_callback  = keras.callbacks.TensorBoard(log_dir=args.logs,
                                                           histogram_freq=1)
     callbacks.append(tensorboard_callback)
-    file_writer_cm = tf.summary.create_file_writer(args.tensorboard_output
+    file_writer_cm = tf.summary.create_file_writer(args.logs
                                                    + '/output_samples')
     if args.show_output_images:
         def show_output(epoch, logs):

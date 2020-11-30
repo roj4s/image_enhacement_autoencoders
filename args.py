@@ -16,17 +16,20 @@ parser.add_argument('--epochs', type=int, help="Epochs to train model, "\
 parser.add_argument('--checkpoints-output', help='Optional, directory to '\
                     'output checkpoints', type=str,
                     default=f'/tmp/checkpoints_{timestamp}')
-parser.add_argument('--tensorboard-output', help='Optional, directory to '\
-                    'output tensorboard logs', type=str,
-                    default=f'/tmp/tensorboard_{timestamp}')
+parser.add_argument('--logs', help='Optional, directory to '\
+                    'output logs (e.g metrics, images)', type=str,
+                    default=f'/tmp/train_logs_{timestamp}')
 parser.add_argument('--show-dataset', action='store_true',
                 help='Plot dataset samples', default=False)
 parser.add_argument('--learning-rate', type=float,
                 help='Learning rate to use with Adam optimizer, default is \
                     1e-3', default=1e-3)
 parser.add_argument('--show-output-images', action='store_true',
-                help='Whether tensorboard should show output images after '\
+                help='Whether tensorboard/pytorch should save output images after '\
                     'each epoch', default=False)
+parser.add_argument('--device', help='Device to use for training, default to '\
+                    'CPU', type=str,
+                    default='cpu')
 
 args = parser.parse_args()
 for arg in vars(args):

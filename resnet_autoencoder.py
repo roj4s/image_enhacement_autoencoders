@@ -110,6 +110,8 @@ class ResNet_autoencoder(nn.Module):
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         self.layer1 = self._make_downlayer(downblock, 64, num_layers[0])
+
+        '''
         self.layer2 = self._make_downlayer(downblock, 128, num_layers[1],
                                            stride=2)
         self.layer3 = self._make_downlayer(downblock, 256, num_layers[2],
@@ -123,11 +125,12 @@ class ResNet_autoencoder(nn.Module):
             upblock, 256, num_layers[2], stride=2)
         self.uplayer3 = self._make_up_block(
             upblock, 128, num_layers[1], stride=2)
+        '''
         self.uplayer4 = self._make_up_block(
             upblock, 64,  num_layers[0], stride=2)
 
         upsample = nn.Sequential(
-            nn.ConvTranspose2d(self.in_channels,  # 256
+            nn.ConvTranspose2d(self.in_channels,
                                64,
                                kernel_size=1, stride=2,
                                bias=False, output_padding=1),
@@ -181,15 +184,15 @@ class ResNet_autoencoder(nn.Module):
         x = self.maxpool(x)
 
         x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
+        #x = self.layer2(x)
+        #x = self.layer3(x)
+        #x = self.layer4(x)
         return x
 
     def decoder(self, x, image_size):
-        x = self.uplayer1(x)
-        x = self.uplayer2(x)
-        x = self.uplayer3(x)
+        #x = self.uplayer1(x)
+        #x = self.uplayer2(x)
+        #x = self.uplayer3(x)
         x = self.uplayer4(x)
         x = self.uplayer_top(x)
 
@@ -201,7 +204,7 @@ class ResNet_autoencoder(nn.Module):
         tmp1 = self.encoder(x)
         tmp2 = self.decoder(tmp1, img.size())
 
-        return tmp1, tmp2
+        return tmp2
 
 
 def ResNet50(**kwargs):
@@ -216,20 +219,17 @@ if __name__ == "__main__":
     from torchsummary import summary
     model = ResNet_autoencoder(Bottleneck, DeconvBottleneck, [
         3, 4, 6, 3], 3).cpu()
-    summary(model, (3, 256, 256))
-    '''
-    load pre_trained_model
-    pretrained_dict = torch.load("./resnet50-19c8e357.pth")
-    model_dict = model.state_dict()
-    # 1. filter out unnecessary keys
-    pretrained_dict = {k: v for k,
-                       v in pretrained_dict.items() if k in model_dict}
-    # 2. overwrite entries in the existing state dict
-    model_dict.update(pretrained_dict)
-    model.load_state_dict(model_dict)
+    summary(model, (3, 380, 380))
 
+    #pretrained_dict = torch.load("./resnet50-19c8e357.pth")
+    #model_dict = model.state_dict()
+    ## 1. filter out unnecessary keys
+    #pretrained_dict = {k: v for k,
+    #                   v in pretrained_dict.items() if k in model_dict}
+    ## 2. overwrite entries in the existing state dict
+    #model_dict.update(pretrained_dict)
+    #model.load_state_dict(model_dict)
 
-    input = torch.autograd.Variable(torch.randn(2, 3, 224, 224)).cuda()
-    o = model(input)
+    _input = torch.autograd.Variable(torch.randn(2, 3, 380, 380)).cpu()
+    o = model(_input)
     print(o)
-    '''
