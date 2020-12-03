@@ -16,6 +16,7 @@ from logs import add_line_to_csv
 import torch
 import piq
 from models import models
+from loss import loss as loss_fun
 
 
 model_names = ",".join(list(models.keys()))
@@ -77,7 +78,7 @@ def main(args):
     summary(model, input_shape)
 
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
-    criterion = nn.MSELoss()
+    #criterion = loss_fun()
 
     best_training_loss = math.inf
     test_loss_for_best_training_loss = math.inf
@@ -114,7 +115,7 @@ def main(args):
             optimizer.zero_grad()
             y_hat = model(x)
 
-            loss = criterion(y_hat, y)
+            loss = loss_fun(y_hat, y)
             loss.backward()
             optimizer.step()
 
@@ -143,7 +144,7 @@ def main(args):
                 x = w.to(device)
                 y = m.to(device)
                 y_hat = model(x)
-                loss = criterion(y_hat, y)
+                loss = loss_fun(y_hat, y)
                 test_loss += float(loss.item())
                 del x
 

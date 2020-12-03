@@ -35,6 +35,8 @@ parser.add_argument('--show-output-images', action='store_true',
 parser.add_argument('--device', help='Device to use for training, default to '\
                     'CPU', type=str,
                     default='cpu')
+parser.add_argument('--loss', help='Loss function, default to MSE', type=str,
+                    default='mse')
 
 args = parser.parse_args()
 for arg in vars(args):
