@@ -4,12 +4,17 @@ import datetime
 timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 parser = argparse.ArgumentParser(description='Train flow for cnn '\
                                  'degradation model autoencoder')
-parser.add_argument('x_root', type=str, help="Directory containing input "\
+parser.add_argument('train_x_root', type=str, help="Directory containing input "\
                     "images")
-parser.add_argument("y_root", type=str, help="Directory containing golden "\
+parser.add_argument("train_y_root", type=str, help="Directory containing golden "\
                     "images")
+parser.add_argument('--test-x', type=str, help="Directory containing input test "\
+                    "images", default=None)
+parser.add_argument("--test-y", type=str, help="Directory containing test golden "\
+                    "images", default=None)
 parser.add_argument('--scale', type=str, help="Scale", default='x2')
-parser.add_argument('--model', type=str, help="Model name", default='Autoencoder_x2_s')
+parser.add_argument('--model', type=str, help="Model name",
+                    default='resnet_autoencoder')
 parser.add_argument('--epochs', type=int, help="Epochs to train model, "\
                     "default is 200",
                     default=200)

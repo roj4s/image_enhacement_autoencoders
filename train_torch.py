@@ -38,13 +38,22 @@ def main(args):
         return 1
 
     print(f"Seting up training for model: {args.model}")
-    print(f"X Root: {args.x_root}")
-    print(f"Y Root: {args.y_root}")
+    print(f"Train X Root: {args.train_x_root}")
+    print(f"Train Y Root: {args.train_y_root}")
+
+    if args.test_x is not None and args.test_y is not None:
+        print(f"Test X Root: {args.test_x}")
+        print(f"Test Y Root: {args.test_y}")
 
     normalize_transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5,
                                                                  0.5))
-    dataset = EnumPairedDataset(args.x_root, args.y_root, transform=normalize_transform)
-    train_d, test_d = train_val_dataset(dataset)
+    if args.test_x is None or args.test_y is None:
+        dataset = EnumPairedDataset(args.train_x_root, args.train_y_root, transform=normalize_transform)
+        train_d, test_d = train_val_dataset(dataset)
+    else:
+        train_d = EnumPairedDataset(args.train_x_root, args.train_y_root, transform=normalize_transform)
+        test_d = EnumPairedDataset(args.test_x_root, args.test_y_root, transform=normalize_transform)
+
     train_batch_size = 32
     test_batch_size = 32
     train_dl = DataLoader(train_d, batch_size=train_batch_size,
@@ -62,8 +71,8 @@ def main(args):
 
     model = models[args.model]
     model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
-    device = f"cuda:{model.device_ids[0]}"
-    #device = 'cpu'
+    #device = f"cuda:{model.device_ids[0]}"
+    device = 'cpu'
     model.to(device)
     summary(model, input_shape)
 
@@ -113,16 +122,15 @@ def main(args):
             del x
             del y
             del y_hat
-            '''
-            train_psnr: torch.Tensor = piq.psnr(y_hat[0], y[0],data_range=1.,
+
+            train_psnr = piq.psnr(y_hat[0], y[0],data_range=1.,
                                    reduction='none')
-            train_ssim: torch.Tensor = piq.ssim(y_hat[0], y[0], data_range=1.,
+            train_ssim = piq.ssim(y_hat[0], y[0], data_range=1.,
                                    reduction='none')
-            '''
 
         training_loss /= (i+1)
-        #train_psnr /= (i+1)
-        #train_ssim /= (i+1)
+        train_psnr /= (i+1)
+        train_ssim /= (i+1)
 
         with torch.no_grad():
             print("Testing:")
@@ -136,8 +144,8 @@ def main(args):
                 test_loss += float(loss.item())
                 del x
 
-                #test_psnr += piq.psnr(y_hat, y)
-                #test_ssim += piq.ssim(y_hat, y)
+                test_psnr += piq.psnr(y_hat, y)
+                test_ssim += piq.ssim(y_hat, y)
 
                 if args.show_output_images and i < 5:
                     imgs_dir = os.path.join(images_output, f"epoch_{epoch + 1}")
@@ -154,16 +162,16 @@ def main(args):
                 del y_hat
 
         test_loss /= (i+1)
-        #test_psnr /= (i + 1)
-        #test_ssim /= (i + 1)
+        test_psnr /= (i + 1)
+        test_ssim /= (i + 1)
 
         print(f"Completed Epoch: {epoch + 1}/{args.epochs}")
         print(f"\tTrain loss: {training_loss}")
         print(f"\tTest loss: {test_loss}")
-        #print(f"\tTrain PSNR: {train_psnr}")
-        #print(f"\tTest PSNR: {test_psnr}")
-        #print(f"\tTrain SSIM: {train_ssim}")
-        #print(f"\tTest SSIM: {test_ssim}")
+        print(f"\tTrain PSNR: {train_psnr}")
+        print(f"\tTest PSNR: {test_psnr}")
+        print(f"\tTrain SSIM: {train_ssim}")
+        print(f"\tTest SSIM: {test_ssim}")
         print(f"\tBest training loss so far: {best_training_loss}")
         print(f"\tTest loss for: {test_loss_for_best_training_loss}")
 
