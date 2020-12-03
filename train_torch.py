@@ -71,8 +71,8 @@ def main(args):
 
     model = models[args.model]
     model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
-    #device = f"cuda:{model.device_ids[0]}"
-    device = 'cpu'
+    device = f"cuda:{model.device_ids[0]}"
+    #device = 'cpu'
     model.to(device)
     summary(model, input_shape)
 
@@ -152,9 +152,10 @@ def main(args):
                     if not os.path.exists(imgs_dir):
                         os.makedirs(imgs_dir)
                     for j, y_hat_i in enumerate(y_hat):
+                        fn = os.path.splitext(os.path.basename(file_name[j]))[0]
                         y_gt = y[j]
-                        img_i_addr = os.path.join(imgs_dir, f'{epoch + 1}_{i}_{j}.{dataset.images_extension}')
-                        img_i_gt_addr = os.path.join(imgs_dir, f'{epoch + 1}_{i}_{j}_gt.{dataset.images_extension}')
+                        img_i_addr = os.path.join(imgs_dir, f'{epoch + 1}_{fn}_{i}_{j}.{dataset.images_extension}')
+                        img_i_gt_addr = os.path.join(imgs_dir, f'{epoch + 1}_{fn}_{i}_{j}_gt.{dataset.images_extension}')
                         torchvision.utils.save_image(y_hat_i, img_i_addr)
                         torchvision.utils.save_image(y_gt, img_i_gt_addr)
                         del y_gt
