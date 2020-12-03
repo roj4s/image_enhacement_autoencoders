@@ -120,13 +120,16 @@ def main(args):
 
             training_loss += float(loss.item())
             del x
-            del y
-            del y_hat
 
+            '''
             train_psnr = piq.psnr(y_hat[0], y[0],data_range=1.,
                                    reduction='none')
             train_ssim = piq.ssim(y_hat[0], y[0], data_range=1.,
                                    reduction='none')
+            '''
+
+            del y
+            del y_hat
 
         training_loss /= (i+1)
         train_psnr /= (i+1)
@@ -144,8 +147,11 @@ def main(args):
                 test_loss += float(loss.item())
                 del x
 
-                test_psnr += piq.psnr(y_hat, y)
-                test_ssim += piq.ssim(y_hat, y)
+                try:
+                    test_psnr += piq.psnr(y_hat, y)
+                    test_ssim += piq.ssim(y_hat, y)
+                except:
+                    pass
 
                 if args.show_output_images and i < 5:
                     imgs_dir = os.path.join(images_output, f"epoch_{epoch + 1}")
