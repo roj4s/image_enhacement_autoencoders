@@ -1,9 +1,7 @@
 import torch
 
-class Resnet50ContextualLoss():
 
-    def __init__(self):
-        pass
+
 
 
 def contextual_loss(x, y, h=0.5):
@@ -52,6 +50,23 @@ def contextual_loss(x, y, h=0.5):
 
     return cx_loss
 
+class Resnet50ContextualLoss(torch.nn.Module):
+
+    def __init__(self, device='cpu'):
+        super(Resnet50ContextualLoss, self).__init__()
+        self.res50_conv = Resnet50FeaturesExtractor().to(device)
+        self.transform = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
+
+    def forward(self, y, y_hat):
+        '''
+        y = self.transform(y)
+        y_hat = self.transform(y_hat)
+        y_ft = self.res50_conv(y)
+        y_hat_ft = self.res50_conv(y_hat)
+        '''
+        return contextual_loss(y, y_hat)
+
 if __name__ == "__main__":
     from resnet_features_extractor import Resnet50FeaturesExtractor
     from data import SingleFolderDataset
@@ -66,10 +81,8 @@ if __name__ == "__main__":
 
     y = torch.autograd.Variable(torch.randn(32, 3, 380, 380)).to(sys.argv[1])
     y_hat = torch.autograd.Variable(torch.randn(32, 3, 380, 380)).to(sys.argv[1])
-    res50_conv = Resnet50FeaturesExtractor().to(sys.argv[1])
-    y_ft = res50_conv(y)
-    y_hat_ft = res50_conv(y_hat)
-    l = contextual_loss(y_ft, y_hat_ft)
+    cx = Resnet50ContextualLoss(device=sys.argv[1]).to(sys.argv[1])
+    l = cx(y, y_hat)
     print(l)
 
     '''
