@@ -17,8 +17,12 @@ parser.add_argument('--scale', type=str, help="Scale", default='x2')
 parser.add_argument('--model', type=str, help="Model name",
                     default='resnet_autoencoder')
 parser.add_argument('--epochs', type=int, help="Epochs to train model, "\
-                    "default is 200",
+                    "default is 200. Summed with --from-epoch"\
+                    " if less than it",
                     default=200)
+parser.add_argument('--from-epoch', type=int, help="Start epoch counting at "\
+                    "this number",
+                    default=0)
 parser.add_argument('--checkpoints-output', help='Optional, directory to '\
                     'output checkpoints', type=str,
                     default=f'/tmp/checkpoints_{timestamp}')

@@ -152,24 +152,20 @@ def main():
                   metrics=[psnr, ssim, ssim_multiscale])
     model.summary()
 
-    print(f"Tensorboard outputs to: {args.logs}")
-    callbacks = []
-    tensorboard_callback  = keras.callbacks.TensorBoard(log_dir=args.logs,
+    print(f"Tensorboard outputs to: {args.tensorboard_output}")
+    tensorboard_callback  = keras.callbacks.TensorBoard(log_dir=args.tensorboard_output,
                                                           histogram_freq=1)
-    callbacks.append(tensorboard_callback)
-    file_writer_cm = tf.summary.create_file_writer(args.logs
+    file_writer_cm = tf.summary.create_file_writer(args.tensorboard_output
                                                    + '/output_samples')
-    if args.show_output_images:
-        def show_output(epoch, logs):
-            x_batch, y_batch = next(iter(val_ds))
-            _input = np.array([x_batch[0]])
-            print(f"Input shape: {_input.shape}")
-            img = model.predict(_input)
-            with file_writer_cm.as_default():
-                    tf.summary.image(f"output_{epoch}", img, step=epoch)
+    def show_output(epoch, logs):
+        x_batch, y_batch = next(iter(val_ds))
+        _input = np.array([x_batch[0]])
+        print(f"Input shape: {_input.shape}")
+        img = model.predict(_input)
+        with file_writer_cm.as_default():
+                tf.summary.image(f"output_{epoch}", img, step=epoch)
 
-        show_output_callback = keras.callbacks.LambdaCallback(on_epoch_end=show_output)
-        callbacks.append(show_output_callback)
+    show_output_callback = keras.callbacks.LambdaCallback(on_epoch_end=show_output)
 
     print(f"Chekpoints outputs to: {args.checkpoints_output}")
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(

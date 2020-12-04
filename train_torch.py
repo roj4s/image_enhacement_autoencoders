@@ -101,9 +101,13 @@ def main(args):
     add_line_to_csv(logs_addr, cols)
 
     print(f"Logs to: {args.logs}")
-    for epoch in range(args.epochs):
+    epochs = args.epochs
+    if epochs <= args.from_epoch:
+        epochs += args.from_epoch
 
-        print(f"Epoch {epoch + 1}/{args.epochs}")
+    for epoch in range(args.from_epoch, epochs + 1):
+
+        print(f"Epoch {epoch}/{epochs}")
 
         training_loss = 0.0
         test_loss = 0.0
@@ -129,8 +133,6 @@ def main(args):
             w, m, file_name = data
             x = w.to(device)
             y = m.to(device)
-            #y_norm = normalize_transform(y)
-            #del y
             del w
             del m
 
@@ -155,8 +157,8 @@ def main(args):
             del y_hat
 
         training_loss /= (i+1)
-        train_psnr /= (i+1)
-        train_ssim /= (i+1)
+        #train_psnr /= (i+1)
+        #train_ssim /= (i+1)
 
         with torch.no_grad():
             print("Testing:")
@@ -177,14 +179,14 @@ def main(args):
                     pass
 
                 if args.show_output_images and i < 5:
-                    imgs_dir = os.path.join(images_output, f"epoch_{epoch + 1}")
+                    imgs_dir = os.path.join(images_output, f"epoch_{epoch}")
                     if not os.path.exists(imgs_dir):
                         os.makedirs(imgs_dir)
                     for j, y_hat_i in enumerate(y_hat):
                         fn = os.path.splitext(os.path.basename(file_name[j]))[0]
                         y_gt = y[j]
-                        img_i_addr = os.path.join(imgs_dir, f'{epoch + 1}_{fn}_{i}_{j}.{dataset.images_extension}')
-                        img_i_gt_addr = os.path.join(imgs_dir, f'{epoch + 1}_{fn}_{i}_{j}_gt.{dataset.images_extension}')
+                        img_i_addr = os.path.join(imgs_dir, f'{epoch}_{fn}_{i}_{j}.{dataset.images_extension}')
+                        img_i_gt_addr = os.path.join(imgs_dir, f'{epoch}_{fn}_{i}_{j}_gt.{dataset.images_extension}')
                         torchvision.utils.save_image(y_hat_i, img_i_addr)
                         torchvision.utils.save_image(y_gt, img_i_gt_addr)
                         del y_gt
@@ -195,7 +197,7 @@ def main(args):
         test_psnr /= (i + 1)
         test_ssim /= (i + 1)
 
-        print(f"Completed Epoch: {epoch + 1}/{args.epochs}")
+        print(f"Completed Epoch: {epoch}/{args.epochs}")
         print(f"\tTrain loss: {training_loss}")
         print(f"\tTest loss: {test_loss}")
         print(f"\tTrain PSNR: {train_psnr}")
@@ -213,7 +215,7 @@ def main(args):
         if best_training_loss > training_loss:
             best_training_loss = training_loss
             test_loss_for_best_training_loss = test_loss
-            save_file_name = f"{args.model}_{best_training_loss:.3f}_{test_loss_for_best_training_loss:.3f}.pth"
+            save_file_name = f"{args.model}_epoch_{epoch}_{best_training_loss:.3f}_{test_loss_for_best_training_loss:.3f}.pth"
             checkpoint_path = os.path.join(args.checkpoints_output, save_file_name)
             torch.save(model.state_dict(), checkpoint_path)
 
