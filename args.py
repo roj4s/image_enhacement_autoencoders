@@ -12,6 +12,7 @@ parser.add_argument('--test-x', type=str, help="Directory containing input test 
                     "images", default=None)
 parser.add_argument("--test-y", type=str, help="Directory containing test golden "\
                     "images", default=None)
+parser.add_argument("--load", type=str, help="Checkpoint file with weights to load", default=None)
 parser.add_argument('--scale', type=str, help="Scale", default='x2')
 parser.add_argument('--model', type=str, help="Model name",
                     default='resnet_autoencoder')

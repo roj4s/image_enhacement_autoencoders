@@ -71,6 +71,7 @@ def main(args):
         plt.show()
 
     model = models[args.model]
+
     model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
     device = f"cuda:{model.device_ids[0]}"
     #device = 'cpu'
@@ -79,6 +80,17 @@ def main(args):
 
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
     #criterion = loss_fun()
+
+    if args.load is not None:
+        try:
+            pretrained_dict = torch.load(args.load)
+            model_dict = model.state_dict()
+            model_dict.update(pretrained_dict)
+            model.load_state_dict(model_dict)
+            print(f"Weights loaded from {args.load}")
+        except Exception as e:
+            print(f"Couldn't load weights from {args.load}")
+            print(e)
 
     best_training_loss = math.inf
     test_loss_for_best_training_loss = math.inf
@@ -100,6 +112,16 @@ def main(args):
         test_psnr = 0.0
         train_ssim = 0.0
         test_ssim = 0.0
+
+        if args.load is not None:
+            try:
+                fn, ext = os.path.splitext(os.path.basename(args.load))
+                loss_vals = fn.split('_')
+                best_training_loss = float(loss_vals[2])
+                test_loss_for_best_training_loss = float(loss_vals[3])
+            except Exception as e:
+                print(f"Couldn't load best training loss from {args.load}")
+                print(e)
 
         print("Training:")
         for i, data in tqdm(enumerate(train_dl), total=int(len(train_d)
