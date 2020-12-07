@@ -55,8 +55,8 @@ def main(args):
         train_d = EnumPairedDataset(args.train_x_root, args.train_y_root, transform=normalize_transform)
         test_d = EnumPairedDataset(args.test_x_root, args.test_y_root, transform=normalize_transform)
 
-    train_batch_size = 32
-    test_batch_size = 32
+    train_batch_size = args.train_batch_size
+    test_batch_size = args.test_batch_size
     train_dl = DataLoader(train_d, batch_size=train_batch_size,
                                                 shuffle=True, num_workers=0)
     test_dl = DataLoader(test_d, batch_size=test_batch_size,

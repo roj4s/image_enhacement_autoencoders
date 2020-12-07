@@ -42,6 +42,12 @@ parser.add_argument('--device', help='Device to use for training, default to '\
                     default='cpu')
 parser.add_argument('--loss', help='Loss function, default to MSE', type=str,
                     default='mse')
+parser.add_argument('--train-batch-size', type=int,
+                help='Batch size for the training set, defaults to 32',
+                    default=32)
+parser.add_argument('--test-batch-size', type=int,
+                help='Batch size for the testing set, defaults to 32',
+                    default=32)
 
 args = parser.parse_args()
 for arg in vars(args):
