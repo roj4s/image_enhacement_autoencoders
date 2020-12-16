@@ -48,6 +48,10 @@ parser.add_argument('--train-batch-size', type=int,
 parser.add_argument('--test-batch-size', type=int,
                 help='Batch size for the testing set, defaults to 32',
                     default=32)
+parser.add_argument('--cx-plus-l1-lambda', type=float,
+                help='L1 weight for contextual plus l1 loss function, default '\
+                    '0.1',
+                    default=0.1)
 
 args = parser.parse_args()
 for arg in vars(args):

@@ -8,7 +8,7 @@ from tqdm import tqdm
 import os
 
 dataset = EnumPairedDataset(args.train_x_root, args.train_y_root)
-dl = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0)
+dl = DataLoader(dataset, batch_size=2, shuffle=False, num_workers=0)
 
 columns = ['file_name', args.loss]
 cols_str = ",".join(columns)
@@ -22,7 +22,7 @@ with open(logs_output, 'wt') as f:
 
 with torch.no_grad():
     for i, data in tqdm(enumerate(dl), total=int(len(dataset)
-                                / 1)):
+                                / 2)):
         x, y, fn = data
         l = loss(x, y).item()
         with open(logs_output, 'at') as f:
